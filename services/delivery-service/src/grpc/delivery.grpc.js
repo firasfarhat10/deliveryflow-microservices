@@ -1,6 +1,10 @@
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const path = require("path");
+const {
+  publishDeliveryAssigned,
+  publishDeliveryStatusUpdated,
+} = require("../kafka/producer");
 
 const deliveryRepository = require("../repositories/delivery.repository");
 const {
@@ -148,7 +152,7 @@ function listDeliveries(call, callback) {
   }
 }
 
-function assignCourier(call, callback) {
+async function assignCourier(call, callback) {
   try {
     const input = {
       deliveryId: call.request.deliveryId,
@@ -178,6 +182,15 @@ function assignCourier(call, callback) {
       });
     }
 
+    try {
+      await publishDeliveryAssigned(delivery);
+    } catch (kafkaError) {
+      console.error(
+        "Failed to publish delivery.assigned event:",
+        kafkaError.message
+      );
+    }
+
     return callback(null, {
       success: true,
       message: "Courier assigned successfully",
@@ -191,7 +204,7 @@ function assignCourier(call, callback) {
   }
 }
 
-function updateDeliveryStatus(call, callback) {
+async function updateDeliveryStatus(call, callback) {
   try {
     const { deliveryId, status } = call.request;
 
@@ -213,6 +226,15 @@ function updateDeliveryStatus(call, callback) {
         message: "Delivery not found",
         delivery: null,
       });
+    }
+
+    try {
+      await publishDeliveryStatusUpdated(delivery);
+    } catch (kafkaError) {
+      console.error(
+        "Failed to publish delivery.status.updated event:",
+        kafkaError.message
+      );
     }
 
     return callback(null, {

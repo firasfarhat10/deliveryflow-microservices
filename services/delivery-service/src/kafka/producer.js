@@ -19,9 +19,23 @@ async function connectProducer() {
   }
 }
 
-async function publishDeliveryCreated(delivery) {
+async function sendEvent(topic, key, event) {
   await connectProducer();
 
+  await producer.send({
+    topic,
+    messages: [
+      {
+        key,
+        value: JSON.stringify(event),
+      },
+    ],
+  });
+
+  console.log(`Published event ${topic}:`, event);
+}
+
+async function publishDeliveryCreated(delivery) {
   const event = {
     eventId: crypto.randomUUID(),
     eventType: "DELIVERY_CREATED",
@@ -31,19 +45,38 @@ async function publishDeliveryCreated(delivery) {
     createdAt: new Date().toISOString(),
   };
 
-  await producer.send({
-    topic: "delivery.created",
-    messages: [
-      {
-        key: delivery.id,
-        value: JSON.stringify(event),
-      },
-    ],
-  });
+  await sendEvent("delivery.created", delivery.id, event);
+}
 
-  console.log("Published event delivery.created:", event);
+async function publishDeliveryAssigned(delivery) {
+  const event = {
+    eventId: crypto.randomUUID(),
+    eventType: "DELIVERY_ASSIGNED",
+    deliveryId: delivery.id,
+    orderId: delivery.orderId,
+    courierId: delivery.courierId,
+    assignedAt: new Date().toISOString(),
+  };
+
+  await sendEvent("delivery.assigned", delivery.id, event);
+}
+
+async function publishDeliveryStatusUpdated(delivery) {
+  const event = {
+    eventId: crypto.randomUUID(),
+    eventType: "DELIVERY_STATUS_UPDATED",
+    deliveryId: delivery.id,
+    orderId: delivery.orderId,
+    courierId: delivery.courierId,
+    status: delivery.status,
+    updatedAt: new Date().toISOString(),
+  };
+
+  await sendEvent("delivery.status.updated", delivery.id, event);
 }
 
 module.exports = {
   publishDeliveryCreated,
+  publishDeliveryAssigned,
+  publishDeliveryStatusUpdated,
 };

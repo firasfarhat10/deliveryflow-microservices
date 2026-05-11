@@ -6,9 +6,11 @@ const {
   getCourierServiceDefinition,
 } = require("./grpc/courier.grpc");
 
+const { startConsumer } = require("./kafka/consumer");
+
 const PORT = process.env.COURIER_SERVICE_PORT || 50053;
 
-function startServer() {
+function startGrpcServer() {
   const server = new grpc.Server();
 
   server.addService(
@@ -32,4 +34,14 @@ function startServer() {
   );
 }
 
-startServer();
+async function startService() {
+  startGrpcServer();
+
+  try {
+    await startConsumer();
+  } catch (error) {
+    console.error("Failed to start Kafka consumer:", error.message);
+  }
+}
+
+startService();
