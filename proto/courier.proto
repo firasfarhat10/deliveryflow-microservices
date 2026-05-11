@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package courier;
+
+service CourierService {
+  rpc CreateCourier (CreateCourierRequest) returns (CourierResponse);
+  rpc GetCourier (GetCourierRequest) returns (CourierResponse);
+  rpc ListCouriers (ListCouriersRequest) returns (ListCouriersResponse);
+  rpc ListAvailableCouriers (ListAvailableCouriersRequest) returns (ListCouriersResponse);
+  rpc UpdateCourierStatus (UpdateCourierStatusRequest) returns (CourierResponse);
+}
+
+enum CourierStatus {
+  COURIER_STATUS_UNSPECIFIED = 0;
+  AVAILABLE = 1;
+  BUSY = 2;
+  OFFLINE = 3;
+}
+
+enum VehicleType {
+  VEHICLE_TYPE_UNSPECIFIED = 0;
+  BIKE = 1;
+  MOTORBIKE = 2;
+  CAR = 3;
+}
+
+message Courier {
+  string id = 1;
+  string name = 2;
+  string phone = 3;
+  VehicleType vehicle_type = 4;
+  CourierStatus status = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message CreateCourierRequest {
+  string name = 1;
+  string phone = 2;
+  VehicleType vehicle_type = 3;
+}
+
+message GetCourierRequest {
+  string id = 1;
+}
+
+message ListCouriersRequest {}
+
+message ListAvailableCouriersRequest {}
+
+message ListCouriersResponse {
+  repeated Courier couriers = 1;
+}
+
+message UpdateCourierStatusRequest {
+  string id = 1;
+  CourierStatus status = 2;
+}
+
+message CourierResponse {
+  bool success = 1;
+  string message = 2;
+  Courier courier = 3;
+}

@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package delivery;
+
+service DeliveryService {
+  rpc CreateDelivery (CreateDeliveryRequest) returns (DeliveryResponse);
+  rpc GetDelivery (GetDeliveryRequest) returns (DeliveryResponse);
+  rpc GetDeliveryByOrderId (GetDeliveryByOrderIdRequest) returns (DeliveryResponse);
+  rpc ListDeliveries (ListDeliveriesRequest) returns (ListDeliveriesResponse);
+  rpc AssignCourier (AssignCourierRequest) returns (DeliveryResponse);
+  rpc UpdateDeliveryStatus (UpdateDeliveryStatusRequest) returns (DeliveryResponse);
+}
+
+enum DeliveryStatus {
+  DELIVERY_STATUS_UNSPECIFIED = 0;
+  PENDING = 1;
+  ASSIGNED = 2;
+  PICKED_UP = 3;
+  IN_TRANSIT = 4;
+  DELIVERED = 5;
+  FAILED = 6;
+}
+
+message Delivery {
+  string id = 1;
+  string order_id = 2;
+  string courier_id = 3;
+  DeliveryStatus status = 4;
+  string assigned_at = 5;
+  string picked_up_at = 6;
+  string delivered_at = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message CreateDeliveryRequest {
+  string order_id = 1;
+}
+
+message GetDeliveryRequest {
+  string id = 1;
+}
+
+message GetDeliveryByOrderIdRequest {
+  string order_id = 1;
+}
+
+message ListDeliveriesRequest {}
+
+message ListDeliveriesResponse {
+  repeated Delivery deliveries = 1;
+}
+
+message AssignCourierRequest {
+  string delivery_id = 1;
+  string courier_id = 2;
+}
+
+message UpdateDeliveryStatusRequest {
+  string delivery_id = 1;
+  DeliveryStatus status = 2;
+}
+
+message DeliveryResponse {
+  bool success = 1;
+  string message = 2;
+  Delivery delivery = 3;
+}
