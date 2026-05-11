@@ -1,0 +1,24 @@
+{
+  "name": "deliveryflow-microservices",
+  "version": "1.0.0",
+  "description": "DeliveryFlow - Node.js microservices project using REST, GraphQL, gRPC, Kafka and SQLite.",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install --prefix gateway && npm install --prefix services/order-service && npm install --prefix services/delivery-service && npm install --prefix services/courier-service",
+    "start:gateway": "npm run dev --prefix gateway",
+    "start:order": "npm run dev --prefix services/order-service",
+    "start:delivery": "npm run dev --prefix services/delivery-service",
+    "start:courier": "npm run dev --prefix services/courier-service"
+  },
+  "keywords": [
+    "microservices",
+    "nodejs",
+    "grpc",
+    "rest",
+    "graphql",
+    "kafka",
+    "sqlite"
+  ],
+  "author": "",
+  "license": "MIT"
+}
