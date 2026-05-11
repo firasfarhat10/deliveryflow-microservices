@@ -1,6 +1,7 @@
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const path = require("path");
+const { publishOrderCreated } = require("../kafka/producer");
 
 const orderRepository = require("../repositories/order.repository");
 const { validateCreateOrderInput } = require("../utils/errors");
@@ -32,7 +33,7 @@ function toProtoOrder(order) {
   };
 }
 
-function createOrder(call, callback) {
+async function createOrder(call, callback) {
   try {
     const input = {
       customerName: call.request.customerName,
@@ -52,6 +53,12 @@ function createOrder(call, callback) {
     }
 
     const order = orderRepository.createOrder(input);
+
+    try {
+      await publishOrderCreated(order);
+    } catch (kafkaError) {
+      console.error("Failed to publish order.created event:", kafkaError.message);
+    }
 
     return callback(null, {
       success: true,
